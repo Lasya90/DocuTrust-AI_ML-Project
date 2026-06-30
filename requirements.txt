@@ -1,0 +1,30 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+python-multipart==0.0.9
+pydantic==2.7.4
+pydantic-settings==2.3.4
+
+# LangChain / LangGraph stack
+langchain==0.2.6
+langchain-community==0.2.6
+langchain-openai==0.1.13
+langgraph==0.1.5
+
+# Embeddings & reranking
+sentence-transformers==3.0.1
+chromadb==0.5.3
+
+# PDF parsing
+pypdf==4.2.0
+unstructured==0.14.9
+
+# DB
+pymongo==4.7.3
+motor==3.4.0
+
+# Web search fallback
+tavily-python==0.3.3
+
+# Utils
+python-dotenv==1.0.1
+websockets==12.0

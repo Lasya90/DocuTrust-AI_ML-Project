@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocuTrust AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif}
+body{background:#eef2f7}
+header{padding:20px 40px;font-size:30px;font-weight:700}
+.container{display:flex;min-height:calc(100vh - 80px)}
+.left{width:40%;background:#111827;color:#fff;padding:30px}
+.right{width:60%;padding:30px}
+.box{background:#1f2937;padding:20px;border-radius:12px;margin-bottom:20px}
+.card{background:#fff;padding:20px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);margin-bottom:20px}
+input[type=file],input[type=text]{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;margin:10px 0}
+button{
+    background:#14b8a6;
+    color:#fff;
+    border:none;
+    padding:8px 16px;      /* Reduced size */
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
+    width:auto;
+    min-width:100px;
+    height:40px;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#0d9488;
+    transform:scale(1.03);
+}
+.result-box{background:#f9fafb;border-left:4px solid #14b8a6;padding:15px;border-radius:8px;min-height:60px}
+.success{color:#22c55e}.error{color:#ef4444}
+.loader{display:none;color:#14b8a6;font-weight:bold}
+</style>
+</head>
+<body>
+<header>DocuTrust AI</header>
+<div class="container">
+<div class="left">
+<div class="box">
+<h2>Upload PDF</h2>
+<input type="file" id="pdfFile" accept="application/pdf">
+<button onclick="uploadPDF()">Upload</button>
+<p id="uploadStatus"></p>
+</div>
+<div class="box">
+<h2>Ask Question</h2>
+<input type="text" id="question" placeholder="Enter your question">
+<button onclick="askQuestion()">Ask</button>
+<p class="loader" id="loading">⏳ Processing...</p>
+</div>
+</div>
+<div class="right">
+<div class="card"><h2>Answer</h2><div id="answer" class="result-box"></div></div>
+<div class="card"><h2>Explanation</h2><div id="explanation" class="result-box"></div></div>
+<div class="card"><h2>Source</h2><div id="source" class="result-box"></div></div>
+</div>
+</div>
+<script>
+const BASE_URL="http://127.0.0.1:8003";
+async function uploadPDF(){
+const file=document.getElementById("pdfFile").files[0];
+const status=document.getElementById("uploadStatus");
+if(!file){status.innerText="❌ Please select a PDF";status.className="error";return;}
+const fd=new FormData();fd.append("file",file);
+try{
+status.innerText="Uploading...";
+const res=await fetch(`${BASE_URL}/upload-pdf`,{method:"POST",body:fd});
+const data=await res.json();
+status.innerText="✅ "+data.message+" | Chunks: "+data.chunks;
+status.className="success";
+}catch(e){status.innerText="❌ Upload failed";status.className="error";}
+}
+async function askQuestion(){
+const q=document.getElementById("question").value;
+if(!q){alert("Enter a question");return;}
+document.getElementById("loading").style.display="block";
+try{
+const res=await fetch(`${BASE_URL}/ask`,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({question:q})
+});
+const data=await res.json();
+document.getElementById("answer").innerText=data.answer||"No answer";
+document.getElementById("explanation").innerText=data.explanation||"-";
+document.getElementById("source").innerText=data.source||"-";
+}catch(e){alert("Error getting answer");}
+document.getElementById("loading").style.display="none";
+}
+</script>
+</body>
+</html>
